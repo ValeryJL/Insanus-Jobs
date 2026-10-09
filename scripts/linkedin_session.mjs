@@ -7,7 +7,7 @@
  * Usage:
  *   node scripts/linkedin_session.mjs check
  *   node scripts/linkedin_session.mjs import <cookies.json>
- *   node scripts/linkedin_session.mjs set-liat <li_at_cookie_value>
+ *   node scripts/linkedin_session.mjs login-ui
  */
 
 import fs from 'fs';
@@ -30,10 +30,9 @@ async function checkSession() {
   if (!fs.existsSync(STATE_FILE)) {
     console.log('❌ No session state found at data/session/state.json');
     console.log('ℹ️ To authenticate, you can:');
-    console.log('   1. Export cookies from your browser (using Cookie-Editor extension) into cookies.json');
-    console.log('   2. Run: node scripts/linkedin_session.mjs import cookies.json');
-    console.log('   OR');
-    console.log('   3. Run: node scripts/linkedin_session.mjs set-liat "<your_li_at_cookie>"');
+    console.log('   1. Log in via browser: node scripts/linkedin_session.mjs login-ui');
+    console.log('   2. OR export all cookies with Cookie-Editor into cookies.json and run:');
+    console.log('      node scripts/linkedin_session.mjs import cookies.json');
     return { authenticated: false, reason: 'missing_cookies' };
   }
 
@@ -61,7 +60,8 @@ async function checkSession() {
 
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    viewport: { width: 1280, height: 800 }
+    viewport: { width: 1280, height: 800 },
+    ignoreHTTPSErrors: true
   });
 
   await context.addCookies(cookies);
@@ -150,31 +150,6 @@ function importCookies(filePath) {
   console.log(`✅ Imported ${validCookies.length} cookies into ${STATE_FILE}`);
 }
 
-function setLiAt(val) {
-  const cookieVal = val.trim();
-  const cookies = [
-    {
-      name: 'li_at',
-      value: cookieVal,
-      domain: '.www.linkedin.com',
-      path: '/',
-      secure: true,
-      httpOnly: true
-    },
-    {
-      name: 'li_at',
-      value: cookieVal,
-      domain: '.linkedin.com',
-      path: '/',
-      secure: true,
-      httpOnly: true
-    }
-  ];
-  const state = { cookies, origins: [] };
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
-  console.log(`✅ Configured li_at cookie in ${STATE_FILE}`);
-}
-
 async function loginUi() {
   console.log('🖥️ Opening browser for manual LinkedIn login...');
   const userDir = path.resolve('data/session/persistent_chrome');
@@ -194,7 +169,11 @@ async function loginUi() {
     const fullCookies = await context.cookies();
     const state = { cookies: fullCookies, origins: [] };
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
-    console.log(`💾 Saved ${fullCookies.length} session cookies to ${STATE_FILE}`);
+
+    // Also backup full cookies to cookies.json and data/cookies.json
+    fs.writeFileSync(path.join(ROOT, 'cookies.json'), JSON.stringify(fullCookies, null, 2), 'utf8');
+    fs.writeFileSync(path.join(ROOT, 'data', 'cookies.json'), JSON.stringify(fullCookies, null, 2), 'utf8');
+    console.log(`💾 Saved all ${fullCookies.length} session cookies to ${STATE_FILE} and cookies.json`);
   } catch (e) {
     console.warn('⚠️ Login timeout or window closed before reaching feed.');
   } finally {
@@ -212,17 +191,11 @@ async function main() {
     }
     importCookies(args[1]);
     await checkSession();
-  } else if (command === 'set-liat') {
-    if (!args[1]) {
-      console.error('Usage: node scripts/linkedin_session.mjs set-liat <cookie_value>');
-      process.exit(1);
-    }
-    setLiAt(args[1]);
-    await checkSession();
   } else if (command === 'login-ui') {
     await loginUi();
   } else {
     console.log(`Unknown command: ${command}`);
+    console.log('Available commands: check | import <cookies.json> | login-ui');
   }
 }
 

@@ -38,24 +38,22 @@ Explicá brevemente al usuario qué credenciales se necesitan y para qué:
 * **Gmail (Google Workspace MCP):** Para monitorear respuestas de recruiters y enviar correos de presentación oficiales sin intermediarios.
 * **LinkedIn (Sesión Playwright):** Para postularse en Easy Apply con emulación humana y conectar con reclutadores.
 
-#### 1.1 Configurar LinkedIn (3 Métodos Disponibles):
-Ofrecé al usuario la opción que le resulte más cómoda:
-* **Método A (Rápido — Pegar cookie `li_at`):**
-  - El usuario abre LinkedIn en su navegador, presiona `F12` -> `Application` -> `Cookies` -> copia el valor de `li_at` y te lo pega en el chat.
-  - El agente ejecuta:
-    ```bash
-    node scripts/linkedin_session.mjs set-liat "<valor_li_at_pegado>"
-    ```
-* **Método B (Completo — Exportar `cookies.json`):**
-  - El usuario usa una extensión como *Cookie-Editor*, exporta las cookies de LinkedIn en JSON y te pega el JSON o lo guarda como `cookies.json`.
-  - El agente lo guarda en `cookies.json` y ejecuta:
-    ```bash
-    node scripts/linkedin_session.mjs import cookies.json
-    ```
-* **Método C (Ventana interactiva de login):**
-  - Si el usuario prefiere loguearse con su usuario y contraseña en una ventana real de Chrome:
+#### 1.1 Configurar LinkedIn (2 Métodos Robustos con Todas las Cookies):
+> [!IMPORTANT]
+> **NO utilices únicamente la cookie `li_at` suelta.** LinkedIn requiere el conjunto completo de cookies de sesión (`li_at`, `JSESSIONID`, `bcookie`, `bscookie`, `lidc`, etc.) para autorizar navegación autenticada y evitar checkpoints de seguridad.
+
+Ofrecé al usuario estas dos opciones que garantizan copiar todas las cookies:
+* **Método A (Recomendado — Ventana de Login Asistido):**
+  - El agente abre una ventana real de Chrome ejecutando:
     ```bash
     node scripts/linkedin_session.mjs login-ui
+    ```
+  - El usuario inicia sesión normalmente en la ventana. En cuanto se detecta la llegada al feed de LinkedIn, el script extrae **automáticamente todas las cookies de la sesión** y las almacena tanto en `data/session/state.json` como en `cookies.json`.
+* **Método B (Exportar Todas las Cookies con Cookie-Editor):**
+  - Con la sesión de LinkedIn ya abierta en su navegador habitual, el usuario abre la extensión *Cookie-Editor*, hace clic en **Export $\to$ Export as JSON** (que exporta el conjunto completo de cookies), y le pega el JSON al agente en el chat.
+  - El agente guarda el array completo en `cookies.json` y ejecuta:
+    ```bash
+    node scripts/linkedin_session.mjs import cookies.json
     ```
 * **Comprobación:**
   El agente verifica que la sesión esté viva:

@@ -82,7 +82,7 @@ Simplemente abrí el chat con el agente y ejecutá:
 /setup
 ```
 El asistente te guiará paso a paso:
-1. **Credenciales:** Te pedirá tu cookie de LinkedIn (`li_at` o exportación JSON) o abrirá una ventana de login asistido, y vinculará tu Gmail vía Google Workspace MCP.
+1. **Credenciales:** Abrirá una ventana de login asistido en Chrome para guardar todas las cookies de sesión (o podés exportar el JSON completo con Cookie-Editor), y vinculará tu Gmail vía Google Workspace MCP.
 2. **Ingesta de CV:** Podés arrastrar tu CV en **PDF**, pegar tu Markdown o texto plano; el agente extraerá automáticamente tu experiencia, educación y proyectos.
 3. **Entrevista de Calibración:** Te consultará roles prioritarios, piso salarial mínimo, año de graduación y disponibilidad.
 4. **Generación y Verificación:** Creará automáticamente `config/profile.yml`, `cv.md`, compilará tu `cv.html` de 2 páginas ATS (0px overflow) e inicializará el tracker.
@@ -129,7 +129,7 @@ Para operar de forma autónoma sin comprometer seguridad, las credenciales se al
 2. **LinkedIn (Sesión y Cookies de Playwright):**
    - **Ubicación principal (Perfil de navegador persistente):** `data/session/persistent_chrome/` (directorio gitignorado con la sesión autenticada).
    - **Exportación de Cookies (opcional / backup):** `cookies.json` o `data/cookies.json` (archivos raíz o en `data/`, ambos estrictamente gitignorados).
-   - **Importar sesión:** `node scripts/linkedin_session.mjs import cookies.json` o `node scripts/linkedin_session.mjs set-liat "<valor_li_at>"`.
+   - **Importar o iniciar sesión:** `node scripts/linkedin_session.mjs login-ui` (ventana asistida que guarda todas las cookies) o `node scripts/linkedin_session.mjs import cookies.json` (importar exportación completa).
 
 3. **Variables de Entorno y Claves de API:**
    - **Ubicación:** `.env` (creado a partir de `.env.example`, gitignorado).
