@@ -76,20 +76,35 @@ insanus-jobs/
 
 ## ⚡ Inicio Rápido
 
-### 1. Instalación de dependencias
+### Opción A: Setup Interactivo con el Agente (Recomendado)
+Simplemente abrí el chat con el agente y ejecutá:
+```
+/setup
+```
+El asistente te guiará paso a paso:
+1. **Credenciales:** Te pedirá tu cookie de LinkedIn (`li_at` o exportación JSON) o abrirá una ventana de login asistido, y vinculará tu Gmail vía Google Workspace MCP.
+2. **Ingesta de CV:** Podés arrastrar tu CV en **PDF**, pegar tu Markdown o texto plano; el agente extraerá automáticamente tu experiencia, educación y proyectos.
+3. **Entrevista de Calibración:** Te consultará roles prioritarios, piso salarial mínimo, año de graduación y disponibilidad.
+4. **Generación y Verificación:** Creará automáticamente `config/profile.yml`, `cv.md`, compilará tu `cv.html` de 2 páginas ATS (0px overflow) e inicializará el tracker.
+
+---
+
+### Opción B: Configuración Manual
+
+#### 1. Instalación de dependencias
 ```bash
 npm install
 npx playwright install chromium
 ```
 
-### 2. Configurar Perfil
-Copia la plantilla de ejemplo y completa tus datos:
+#### 2. Configurar Perfil y CV
+Copia las plantillas de ejemplo y completa tus datos locales:
 ```bash
 cp config/profile.example.yml config/profile.yml
 cp cv.example.md cv.md
 ```
 
-### 3. Ejecutar el flujo o tareas individuales
+#### 3. Ejecutar verificación y tareas individuales
 ```bash
 # Verificar la salud del tracker
 npm run verify

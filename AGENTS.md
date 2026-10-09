@@ -2,6 +2,15 @@
 
 Este repositorio contiene un agente de IA autónomo diseñado para buscar ofertas de empleo, adaptar CVs a medida de 2 páginas (sin desbordes), postular automáticamente mediante LinkedIn Easy Apply, contactar reclutadores reales y monitorear respuestas por correo y LinkedIn.
 
+## ⚙️ El Flujo de Onboarding: `/setup`
+
+Para inicializar el sistema para un nuevo candidato o máquina, el usuario puede ejecutar `/setup` en el chat:
+1. **Credenciales:** Instalación asistida de sesión de LinkedIn (pegando la cookie `li_at`, importando `cookies.json` o abriendo una ventana de login asistido con `node scripts/linkedin_session.mjs login-ui`) y verificación de Google Workspace MCP para Gmail.
+2. **Ingesta de CV:** Extracción automatizada a partir de un CV existente en **PDF**, Markdown o texto plano.
+3. **Entrevista de Perfil:** Preguntas dirigidas sobre roles target, piso salarial mínimo (ARS/USD), año de graduación y narrativa profesional.
+4. **Generación Local:** Creación de `config/profile.yml`, `cv.md`, maquetado de `cv.html` en 2 páginas ATS (0px overflow) e inicialización del tracker.
+5. **Verificación:** Ejecución de `node scripts/check_cv_format.mjs` y `npm run verify`.
+
 ---
 
 ## 🎯 El Flujo Maestro: `/search-jobs`

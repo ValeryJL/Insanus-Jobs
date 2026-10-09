@@ -175,6 +175,33 @@ function setLiAt(val) {
   console.log(`✅ Configured li_at cookie in ${STATE_FILE}`);
 }
 
+async function loginUi() {
+  console.log('🖥️ Opening browser for manual LinkedIn login...');
+  const userDir = path.resolve('data/session/persistent_chrome');
+  const context = await chromium.launchPersistentContext(userDir, {
+    headless: false,
+    executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
+    viewport: { width: 1280, height: 900 },
+    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled']
+  });
+  const page = context.pages()[0] || await context.newPage();
+  await page.goto('https://www.linkedin.com/login');
+  console.log('👉 Please log in to LinkedIn in the browser window.');
+  console.log('⏳ Waiting for login completion (up to 2 minutes)...');
+  try {
+    await page.waitForURL('**/feed/**', { timeout: 120000 });
+    console.log('✅ Logged in successfully!');
+    const fullCookies = await context.cookies();
+    const state = { cookies: fullCookies, origins: [] };
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+    console.log(`💾 Saved ${fullCookies.length} session cookies to ${STATE_FILE}`);
+  } catch (e) {
+    console.warn('⚠️ Login timeout or window closed before reaching feed.');
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   if (command === 'check') {
     await checkSession();
@@ -192,6 +219,8 @@ async function main() {
     }
     setLiAt(args[1]);
     await checkSession();
+  } else if (command === 'login-ui') {
+    await loginUi();
   } else {
     console.log(`Unknown command: ${command}`);
   }
