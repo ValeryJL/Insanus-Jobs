@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Alex R. Morgan - Curriculum Vitae</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 11mm 15mm 11mm 15mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background-color: #ffffff;
+      font-size: 8.8pt;
+      line-height: 1.32;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      min-height: 275mm;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    .content {
+      flex: 1;
+    }
+
+    .header {
+      margin-bottom: 9px;
+    }
+
+    .name {
+      font-size: 23pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      line-height: 1.05;
+      margin-bottom: 3px;
+    }
+
+    .headline {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 7px;
+    }
+
+    .contact-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+      font-size: 8.3pt;
+      color: #1e293b;
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .contact-item svg {
+      width: 11px;
+      height: 11px;
+      fill: currentColor;
+      opacity: 0.8;
+    }
+
+    .section {
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 9.8pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #0f172a;
+      border-bottom: 1.4px solid #0f172a;
+      padding-bottom: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    .summary-text {
+      text-align: justify;
+      color: #1e293b;
+      font-size: 8.7pt;
+      line-height: 1.34;
+    }
+
+    .item {
+      margin-bottom: 6.5px;
+    }
+
+    .item:last-child {
+      margin-bottom: 0;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.5px;
+    }
+
+    .item-title {
+      font-size: 9.2pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .item-subtitle {
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .item-date {
+      font-size: 8.1pt;
+      font-weight: 600;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .item-desc {
+      color: #1e293b;
+      font-size: 8.6pt;
+      line-height: 1.28;
+    }
+
+    ul.bullets {
+      margin-top: 1.5px;
+      padding-left: 14px;
+      list-style-type: disc;
+    }
+
+    ul.bullets li {
+      margin-bottom: 1.2px;
+      font-size: 8.5pt;
+      color: #1e293b;
+      line-height: 1.28;
+    }
+
+    ul.bullets li:last-child {
+      margin-bottom: 0;
+    }
+
+    .skills-category {
+      margin-bottom: 4px;
+    }
+
+    .skills-label {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 8.7pt;
+      display: inline-block;
+      margin-right: 3px;
+    }
+
+    .skills-value {
+      color: #1e293b;
+      font-size: 8.5pt;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .page-footer {
+      font-size: 7.2pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= PAGE 1 ================= -->
+  <div class="page">
+    <div class="content">
+      <header class="header">
+        <h1 class="name">Alex R. Morgan</h1>
+        <div class="headline">Técnico Electrónico | Desarrollador Backend & Sistemas Distribuidos</div>
+        <div class="contact-grid">
+          <span class="contact-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Córdoba, Argentina
+          </span>
+          <a class="contact-item" href="mailto:alex.morgan@example.com">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            alex.morgan@example.com
+          </a>
+          <span class="contact-item">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            +54 9 351 555-0199
+          </span>
+          <a class="contact-item" href="https://alexmorgan.dev" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41a7.984 7.984 0 0 1 4.9 8.65c-.01.59-.14 1.15-.35 1.69z"/></svg>
+            alexmorgan.dev
+          </a>
+          <a class="contact-item" href="https://linkedin.com/in/alexmorgan" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.46 1.46 0 1 0-.01-2.92 1.46 1.46 0 0 0 .01 2.92M7.86 18.5V10.13H5.06v8.37h2.8z"/></svg>
+            linkedin.com/in/alexmorgan
+          </a>
+          <a class="contact-item" href="https://github.com/alexmorgan" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+            github.com/alexmorgan
+          </a>
+        </div>
+      </header>
+
+      <section class="section">
+        <h2 class="section-title">Perfil Profesional</h2>
+        <p class="summary-text">
+          Técnico Electrónico y desarrollador de software con perfil orientado a sistemas distribuidos, microservicios backend y automatización de procesos industriales. Experiencia en diseño e implementación de APIs resilientes (Go, Java/Spring Boot, Python/FastAPI) y pipelines de mensajería asíncrona de alta concurrencia. Sólida base práctica en diagnóstico de hardware, instrumentación y despliegue contenerizado en nubes públicas y privadas.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Experiencia Laboral e Industrial</h2>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Desarrollador Backend & Cloud <span class="item-subtitle">— Vortex Systems</span></span>
+            <span class="item-date">03/2025 – Actualidad</span>
+          </div>
+          <div class="item-desc">Diseño y mantenimiento de microservicios de ingesta telemétrica en tiempo real. Optimización de latencia en consultas distribuidas y migración de arquitectura monolítica hacia clústeres de contenedores Docker orquestados con Kubernetes.</div>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Técnico de Laboratorio & Control <span class="item-subtitle">— Industrias Cuyo</span></span>
+            <span class="item-date">04/2023 – 02/2025</span>
+          </div>
+          <div class="item-desc">Calibración de lazos de control PID, mantenimiento predictivo de variadores de velocidad e integración de controladores lógicos programables (PLC) con software de supervisión SCADA.</div>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Técnico de Soporte & Redes <span class="item-subtitle">— DataCore Soluciones</span></span>
+            <span class="item-date">01/2022 – 03/2023</span>
+          </div>
+          <div class="item-desc">Configuración de switches administrables, monitoreo de enlaces de fibra óptica y administración de servidores Linux para infraestructura interna de clientes corporativos.</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Proyectos Destacados de Software e Infraestructura</h2>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">OmniMesh <span class="item-subtitle">— Plataforma de Orquestación de Microservicios</span></span>
+            <span class="item-date">08/2025 – Actualidad</span>
+          </div>
+          <div class="item-desc">Malla de servicios y gateway perimetral para distribución de cargas y descubrimiento automático en clústeres privados.</div>
+          <ul class="bullets">
+            <li><strong>Plano de Datos:</strong> Proxy de alto rendimiento desarrollado en <strong>Go (Fiber)</strong> con validación de tokens JWT en memoria y balanceo round-robin ponderado.</li>
+            <li><strong>Worker & Eventos:</strong> Procesamiento asíncrono de eventos de auditoría mediante <strong>RabbitMQ</strong> y almacenamiento temporal en <strong>Redis</strong>.</li>
+            <li><strong>Despliegue & Telemetría:</strong> Infraestructura contenerizada con Docker Compose y métricas expuestas para Prometheus y paneles en Grafana.</li>
+          </ul>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Synapse CRM <span class="item-subtitle">— Gestor de Operaciones & Despacho Técnico</span></span>
+            <span class="item-date">01/2025 – 07/2025</span>
+          </div>
+          <div class="item-desc">Aplicación web integral para seguimiento de órdenes de servicio técnico y facturación de repuestos electromecánicos.</div>
+          <ul class="bullets">
+            <li><strong>Backend:</strong> Arquitectura REST escalable en <strong>Java 21 con Spring Boot 3.x</strong>, Spring Data JPA y base de datos relacional PostgreSQL.</li>
+            <li><strong>Frontend & Auditoría:</strong> Interfaz web moderna desarrollada con React, TypeScript y Tailwind CSS, con exportación automatizada de reportes en PDF.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Alex R. Morgan — Curriculum Vitae</span>
+      <span>Página 1 de 2</span>
+    </footer>
+  </div>
+
+  <!-- ================= PAGE 2 ================= -->
+  <div class="page">
+    <div class="content">
+      <section class="section">
+        <h2 class="section-title">Proyectos Destacados (Continuación)</h2>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">AetherAgent <span class="item-subtitle">— Framework de Automatización y Agentes Inteligentes</span></span>
+            <span class="item-date">09/2025 – Actualidad</span>
+          </div>
+          <div class="item-desc">Plataforma de ejecución de flujos agénticos orientada a la interacción con herramientas de sistema y fuentes de datos externas.</div>
+          <ul class="bullets">
+            <li><strong>Núcleo & APIs:</strong> Construido en <strong>Python 3.12 y FastAPI</strong>, con persistencia no relacional en <strong>MongoDB</strong> y streaming de respuestas por Server-Sent Events (SSE).</li>
+            <li><strong>Integración con Herramientas:</strong> Implementación de protocolos abiertos para invocación de funciones (tool calling), análisis semántico y tareas autónomas en background.</li>
+            <li><strong>Dashboard de Control:</strong> Interfaz interactiva para visualización de trazas de ejecución y depuración de prompts en tiempo real.</li>
+          </ul>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">GridMetrics <span class="item-subtitle">— Monitor Telemétrico de Plantas de Energía</span></span>
+            <span class="item-date">04/2024 – 11/2024</span>
+          </div>
+          <div class="item-desc">Sistema de adquisición de variables eléctricas y generación de alertas tempranas para instalaciones fotovoltaicas mediante Modbus TCP y dashboards en tiempo real.</div>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">KronoTask <span class="item-subtitle">— Planificador Distribuido de Tareas Críticas</span></span>
+            <span class="item-date">11/2023 – 03/2024</span>
+          </div>
+          <div class="item-desc">Motor de cron distribuido tolerante a fallos con soporte para reintentos exponenciales y bloqueos distribuidos sobre PostgreSQL.</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Matriz de Habilidades Técnicas</h2>
+
+        <div class="skills-category">
+          <span class="skills-label">Lenguajes de Programación:</span>
+          <span class="skills-value">Go (Golang), Java 21, Python 3.12, C, C++, TypeScript, JavaScript, SQL, Bash.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Backend, APIs & Cloud:</span>
+          <span class="skills-value">Spring Boot 3.x, FastAPI, Fiber, Node.js, RESTful APIs, gRPC, WebSockets, Swagger/OpenAPI.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Inteligencia Artificial & Automatización:</span>
+          <span class="skills-value">Model Context Protocol (MCP), LLM APIs, Tool Calling, agentes autónomos, LangChain.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Bases de Datos & Mensajería:</span>
+          <span class="skills-value">PostgreSQL 16, Redis, MongoDB, RabbitMQ, migraciones automatizadas, pooling de conexiones.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Infraestructura & DevOps:</span>
+          <span class="skills-value">Docker, Docker Compose, Linux (Ubuntu/Debian), Kubernetes básico, Nginx, CI/CD con GitHub Actions.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Hardware, Electrónica & CAD:</span>
+          <span class="skills-value">Microcontroladores (ESP32, STM32, Arduino), buses de campo (Modbus TCP/RTU, CAN), KiCad, instrumentación.</span>
+        </div>
+
+        <div class="skills-category">
+          <span class="skills-label">Seguridad & Prácticas:</span>
+          <span class="skills-value">OAuth2, JWT, RBAC, Clean Architecture, diseño orientado a dominios (DDD), pruebas unitarias e integración.</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Educación</h2>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Licenciatura en Ciencias de la Computación</span>
+            <span class="item-date">03/2022 – En curso</span>
+          </div>
+          <div class="item-subtitle">Universidad Tecnológica Nacional (UTN)</div>
+          <div class="item-desc">Formación avanzada en algoritmos, estructuras de datos, concurrencia, redes de datos y arquitectura de computadoras.</div>
+        </div>
+
+        <div class="item">
+          <div class="item-header">
+            <span class="item-title">Tecnicatura en Electrónica</span>
+            <span class="item-date">2016 – 2021</span>
+          </div>
+          <div class="item-subtitle">Instituto Provincial de Educación Técnica</div>
+          <div class="item-desc">Título técnico profesional secundario especializado en circuitos analógicos y digitales, sistemas de control y automatización.</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Cursos, Idiomas e Intereses</h2>
+
+        <div class="grid-2col">
+          <div>
+            <div class="skills-category">
+              <span class="skills-label">Idiomas:</span>
+              <ul class="bullets">
+                <li><strong>Inglés:</strong> B2 Intermedio Avanzado (Certificación Internacional).</li>
+                <li><strong>Español:</strong> Hablante nativo.</li>
+              </ul>
+            </div>
+            <div class="skills-category" style="margin-top: 5px;">
+              <span class="skills-label">Certificaciones:</span>
+              <ul class="bullets">
+                <li>Fundamentos de Arquitectura Cloud & Microservicios.</li>
+                <li>Programación Avanzada de Sistemas Embebidos en C++.</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="skills-category">
+              <span class="skills-label">Intereses & Laboratorio:</span>
+              <ul class="bullets">
+                <li>Prototipado rápido de PCBs y hardware de código abierto.</li>
+                <li>Sistemas operativos en tiempo real (RTOS).</li>
+                <li>Investigación en protocolos abiertos para agentes de IA.</li>
+                <li>Divulgación técnica y proyectos de comunidad.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      <span>Alex R. Morgan — Curriculum Vitae</span>
+      <span>Página 2 de 2</span>
+    </footer>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+# Personal Candidate Data (User Layer - NEVER committed to repository)
+cv.md
+cv.html
+config/profile.yml
+config/profile_narrative.md
+config/portals.yml
+data/applications.md
+data/pipeline.md
+data/qa-bank.md
+data/follow-ups.md
+data/answers_cache.json
+data/applied_jobs.json
+data/scan-history.tsv
+data/resumes/
+data/history_scripts/
+reports/*.md
+!reports/.gitkeep
+output/*
+!output/.gitkeep
+jds/*
+!jds/.gitkeep
+batch/tracker-additions/*.tsv
+batch/tracker-additions/merged/
+batch/logs/*
+!batch/logs/.gitkeep
+!batch/tracker-additions/.gitkeep
+
+# Session, Cookies & Secrets (CRITICAL: NEVER COMMIT)
+data/session/
+data/cookies.json
+cookies.json
+data/secrets.yaml
+.env
+
+# Python & Node
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+node_modules/
+package-lock.json
+.pytest_cache/
+
+# OS files
+.DS_Store
+*.log

@@ -1,0 +1,34 @@
+{
+  "name": "insanus-jobs",
+  "version": "1.0.0",
+  "description": "Autonomous AI Agent Job Search & Application Command Center",
+  "type": "module",
+  "scripts": {
+    "verify": "node scripts/verify_pipeline.mjs",
+    "normalize": "node scripts/normalize_statuses.mjs",
+    "dedup": "node scripts/dedup_tracker.mjs",
+    "merge": "node scripts/merge_tracker.mjs",
+    "pdf": "node scripts/generate_pdf.mjs",
+    "check:inbox": "node scripts/check_inbox.mjs",
+    "check:responses": "node scripts/check_recruiter_responses.mjs",
+    "check:cv": "node scripts/check_cv_format.mjs"
+  },
+  "keywords": [
+    "ai-agent",
+    "job-search",
+    "insanus-jobs",
+    "antigravity",
+    "gemini-cli",
+    "playwright",
+    "linkedin-easy-apply",
+    "ats-cv",
+    "automation"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.1",
+    "playwright": "^1.58.1"
+  }
+}
