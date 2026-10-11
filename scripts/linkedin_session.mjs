@@ -225,7 +225,7 @@ async function setToken(token) {
 }
 
 async function loginUi() {
-  console.log('🖥️ Opening browser for manual LinkedIn login...');
+  console.log('🖥️ Abriendo ventana única para login en LinkedIn...');
   const userDir = path.resolve('data/session/persistent_chrome');
   const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
     headless: false,
@@ -233,21 +233,29 @@ async function loginUi() {
   }));
   const page = context.pages()[0] || await context.newPage();
   await page.goto('https://www.linkedin.com/login');
-  console.log('👉 Please log in to LinkedIn in the browser window.');
-  console.log('⏳ Waiting for login completion (up to 2 minutes)...');
+  console.log('👉 Iniciá sesión en LinkedIn en la ventana emergente (tildá "Recordarme" si aparece).');
+  console.log('⏳ Esperando inicio de sesión exitoso (hasta 3 minutos)...');
+
   try {
-    await page.waitForURL('**/feed/**', { timeout: 120000 });
-    console.log('✅ Logged in successfully!');
+    // Detectar cuando el usuario ya no está en login ni checkpoint
+    await page.waitForFunction(() => {
+      const u = window.location.href;
+      const isLoginOrAuth = u.includes('/login') || u.includes('/checkpoint') || u.includes('/uas/login');
+      const hasNav = !!document.querySelector('.global-nav, .feed-identity-module, a[href*="/feed"], nav.global-nav');
+      return (!isLoginOrAuth && (u.includes('/feed') || u.includes('/jobs') || u.includes('/mynetwork') || u.includes('/in/') || hasNav));
+    }, { timeout: 180000, polling: 1000 });
+
+    console.log('🎉 ¡Sesión iniciada con éxito!');
+    await page.waitForTimeout(3000); // Dar 3 segundos para que Chromium sincronice cookies en disco
+
     const fullCookies = await context.cookies();
-    const state = { cookies: fullCookies, origins: [] };
+    const state = { cookies: fullCookies, origins: [], lastLogin: new Date().toISOString() };
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
 
-    // Also backup full cookies to cookies.json and data/cookies.json
-    fs.writeFileSync(path.join(ROOT, 'cookies.json'), JSON.stringify(fullCookies, null, 2), 'utf8');
-    fs.writeFileSync(path.join(ROOT, 'data', 'cookies.json'), JSON.stringify(fullCookies, null, 2), 'utf8');
-    console.log(`💾 Saved all ${fullCookies.length} session cookies to ${STATE_FILE} and cookies.json`);
+    console.log(`💾 Sesión guardada de forma permanente en data/session/persistent_chrome (${fullCookies.length} cookies).`);
+    console.log('🚀 ¡Configuración completada! A partir de ahora todas las postulaciones correrán 100% HEADLESS en segundo plano.');
   } catch (e) {
-    console.warn('⚠️ Login timeout or window closed before reaching feed.');
+    console.warn('⚠️ Tiempo de espera agotado o ventana cerrada antes de completar el login.');
   } finally {
     await context.close();
   }

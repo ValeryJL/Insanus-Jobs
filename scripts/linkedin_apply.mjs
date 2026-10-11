@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
-import { getBrowserLaunchOptions } from './browser_env.mjs';
+import { getPersistentLaunchOptions, getDefaultUserAgent } from './browser_env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STATE_FILE = path.join(ROOT, 'data', 'session', 'state.json');
@@ -180,25 +180,14 @@ function selectNo(options) {
 }
 
 async function run() {
-  if (!fs.existsSync(STATE_FILE)) {
-    console.error(JSON.stringify({ error: "Session file not found at " + STATE_FILE }));
-    process.exit(1);
-  }
-
-  const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-  const cookies = state.cookies || [];
-
-  const browser = await chromium.launch(getBrowserLaunchOptions({
-    headless: true
+  const userDir = path.resolve(ROOT, 'data', 'session', 'persistent_chrome');
+  const browser = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    headless: true,
+    userAgent: getDefaultUserAgent(),
+    viewport: { width: 1280, height: 900 }
   }));
 
-  const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    viewport: { width: 1280, height: 900 }
-  });
-
-  await context.addCookies(cookies);
-  const page = await context.newPage();
+  const page = browser.pages()[0] || await browser.newPage();
 
   await page.addInitScript(`
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
@@ -208,6 +197,15 @@ async function run() {
   try {
     await page.goto(jobUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
     await page.waitForTimeout(3000);
+
+    if (page.url().includes('/login') || page.url().includes('/authwall') || page.url().includes('/checkpoint')) {
+      await browser.close();
+      console.log(JSON.stringify({
+        success: false,
+        error: "Sesión de LinkedIn no autenticada en persistent_chrome. Ejecuta 'node scripts/linkedin_session.mjs login-ui' para iniciar sesión una única vez."
+      }, null, 2));
+      return;
+    }
 
     // Extract title, company, description
     const jobInfo = await page.evaluate(() => {
