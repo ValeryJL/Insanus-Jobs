@@ -13,6 +13,18 @@ export function getChromeExecutablePath() {
     return process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
   }
 
+  // Si existe el Chromium oficial de Playwright instalado en AppData o caché, dejar que Playwright lo use (undefined)
+  const defaultPlaywrightPath = path.join(
+    process.env.LOCALAPPDATA || '',
+    'ms-playwright',
+    'chromium-1217',
+    'chrome-win64',
+    'chrome.exe'
+  );
+  if (fs.existsSync(defaultPlaywrightPath)) {
+    return undefined; // Permite a Playwright usar su propio binario nativo sin conflictos de procesos
+  }
+
   const isWin = process.platform === 'win32';
   const isMac = process.platform === 'darwin';
 
