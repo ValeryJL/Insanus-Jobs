@@ -14,8 +14,13 @@ async function checkLinkedInInbox() {
 
     // 1. Mensajes directos en LinkedIn
     console.log('Navegando a LinkedIn Messaging...');
-    await page.goto('https://www.linkedin.com/messaging/', { waitUntil: 'domcontentloaded', timeout: 35000 });
-    await page.waitForTimeout(4000);
+    await page.goto('https://www.linkedin.com/messaging/', { waitUntil: 'domcontentloaded', timeout: 25000 });
+    await page.waitForTimeout(2500);
+
+    if (page.url().includes('/login') || page.url().includes('/authwall') || page.url().includes('/checkpoint')) {
+      console.log('ℹ️ Sesión web de LinkedIn no activa. Las notificaciones y respuestas de LinkedIn se monitorean automáticamente vía Google Workspace MCP (Gmail).');
+      return;
+    }
 
     await page.screenshot({ path: 'data/session/linkedin_messaging_view.png', fullPage: false });
 

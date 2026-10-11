@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * scripts/linkedin_search.mjs — Search LinkedIn Jobs via Authenticated Session
+ * scripts/linkedin_search.mjs — Search LinkedIn Jobs via Public Guest API (Zero Cookies Needed)
  *
  * Usage:
  *   node scripts/linkedin_search.mjs --keywords "Junior Backend" --location "Argentina" --limit 5
@@ -9,11 +9,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { chromium } from 'playwright';
-import { getBrowserLaunchOptions } from './browser_env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const STATE_FILE = path.join(ROOT, 'data', 'session', 'state.json');
 
 const args = process.argv.slice(2);
 function getArg(flag, def) {
@@ -26,109 +23,100 @@ const location = getArg('--location', 'Argentina');
 const limit = parseInt(getArg('--limit', '5'), 10);
 const remote = args.includes('--remote');
 
-async function searchJobs() {
-  if (!fs.existsSync(STATE_FILE)) {
-    console.error(JSON.stringify({ error: 'No session found. Run linkedin_session.mjs first.' }));
-    process.exit(1);
+async function fetchJobDescription(jobId) {
+  if (!jobId) return '';
+  try {
+    const res = await fetch(`https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/${jobId}`, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+      }
+    });
+    if (!res.ok) return '';
+    const html = await res.text();
+    const descMatch = html.match(/<div class="show-more-less-html__markup[^"]*"[^>]*>([\s\S]*?)<\/div>/);
+    if (!descMatch) return '';
+    return descMatch[1]
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  } catch (_) {
+    return '';
   }
+}
 
-  const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-  const cookies = state.cookies || [];
-
+async function searchJobs() {
   const params = new URLSearchParams({
     keywords: keywords,
     location: location,
     f_AL: 'true', // Easy Apply
-    sortBy: 'DD'
+    sortBy: 'DD',
+    start: '0'
   });
   if (remote) {
     params.set('f_WT', '2'); // Remote
   }
 
-  const searchUrl = `https://www.linkedin.com/jobs/search/?${params.toString()}`;
-
-  const browser = await chromium.launch(getBrowserLaunchOptions({
-    headless: true
-  }));
-
-  const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    viewport: { width: 1280, height: 800 }
-  });
-
-  await context.addCookies(cookies);
-
-  const page = await context.newPage();
-  await page.addInitScript(`
-    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    window.chrome = { runtime: {}, loadTimes: function() {}, csi: function() {}, app: {} };
-  `);
+  const searchUrl = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?${params.toString()}`;
 
   try {
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(3000);
+    const res = await fetch(searchUrl, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+      }
+    });
 
-    // Scroll down to load jobs
-    await page.evaluate(() => window.scrollBy(0, 800));
-    await page.waitForTimeout(1500);
+    if (!res.ok) {
+      throw new Error(`LinkedIn Guest Jobs API returned HTTP ${res.status}: ${res.statusText}`);
+    }
 
-    const jobs = await page.evaluate((max) => {
-      const results = [];
-      const links = document.querySelectorAll('a[href*="/jobs/view/"]');
-      for (const link of links) {
-        if (results.length >= max) break;
+    const html = await res.text();
+    const cards = html.split('<li').slice(1);
+    const jobs = [];
 
-        const rawHref = link.getAttribute('href') || '';
-        const href = (rawHref.startsWith('http') ? rawHref : 'https://www.linkedin.com' + rawHref).split('?')[0];
-        const jobId = (href.match(/\/view\/.*?(\d{8,})/i) || href.match(/\/view\/(\d+)/) || [])[1] || '';
+    for (const card of cards) {
+      if (jobs.length >= limit) break;
 
-        // Try to find parent card or container
-        const card = link.closest('.job-card-container, .jobs-search-results__list-item, div[data-job-id], li.ember-view, .base-card, div') || link;
-        
-        let title = link.innerText.trim();
-        const titleEl = card.querySelector('.job-card-list__title, .artdeco-entity-lockup__title, strong, h3');
-        if (titleEl && titleEl.innerText.trim().length > 3) {
-          title = titleEl.innerText.trim();
-        }
+      const titleMatch = card.match(/<h3[^>]*class="[^"]*base-search-card__title[^"]*"[^>]*>([\s\S]*?)<\/h3>/);
+      const companyMatch = card.match(/<h4[^>]*class="[^"]*base-search-card__subtitle[^"]*"[^>]*>([\s\S]*?)<\/h4>/);
+      const locationMatch = card.match(/<span[^>]*class="[^"]*job-search-card__location[^"]*"[^>]*>([\s\S]*?)<\/span>/);
+      const linkMatch = card.match(/<a[^>]*class="[^"]*base-card__full-link[^"]*"[^>]*href="([^"]+)"/);
+      const idMatch = card.match(/data-entity-urn="urn:li:jobPosting:(\d+)"/);
 
-        let company = '';
-        const companyEl = card.querySelector('.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, .base-search-card__subtitle, a[href*="/company/"]');
-        if (companyEl) company = companyEl.innerText.trim();
+      if (titleMatch && linkMatch) {
+        const jobId = idMatch ? idMatch[1] : (linkMatch[1].match(/\/(\d{8,})/i) || [])[1] || '';
+        const href = linkMatch[1].split('?')[0];
+        const title = titleMatch[1].trim().replace(/\s+/g, ' ');
+        const company = companyMatch ? companyMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+        const loc = locationMatch ? locationMatch[1].trim() : '';
 
-        let locationText = '';
-        const locEl = card.querySelector('.job-card-container__metadata-item, .artdeco-entity-lockup__caption, .job-search-card__location');
-        if (locEl) locationText = locEl.innerText.trim();
-
-        // Clean repeated text in titles (e.g. "Title\nTitle")
-        if (title.includes('\n')) {
-          const lines = title.split('\n').map(l => l.trim()).filter(Boolean);
-          title = lines[0] || title;
-        }
-
-        if (title && href && !results.some(r => r.url === href || (jobId && r.job_id === jobId))) {
-          results.push({
+        // Deduplication
+        if (!jobs.some(j => j.url === href || (jobId && j.job_id === jobId))) {
+          jobs.push({
             job_id: jobId,
             title: title,
             company: company,
-            location: locationText,
+            location: loc,
             url: href,
             easy_apply: true
           });
         }
       }
-      return results;
-    }, limit);
+    }
 
-    await browser.close();
+    // Optionally enrich top matches with full description
+    for (const job of jobs) {
+      if (job.job_id) {
+        job.description = await fetchJobDescription(job.job_id);
+      }
+    }
+
     console.log(JSON.stringify({ query: { keywords, location, limit }, count: jobs.length, jobs }, null, 2));
   } catch (err) {
-    await browser.close();
     console.error(JSON.stringify({ error: err.message }));
     process.exit(1);
   }
 }
 
-searchJobs().catch(err => {
-  console.error(JSON.stringify({ error: err.message }));
-  process.exit(1);
-});
+searchJobs();
