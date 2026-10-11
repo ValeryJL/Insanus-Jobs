@@ -34,7 +34,7 @@ async function checkGmailResponses() {
 
     // Query para detectar correos de reclutadores, empresas aplicadas o invitaciones
     const queries = [
-      profile.email ? `to:${profile.email} newer_than:3d` : 'label:INBOX newer_than:3d',
+      profile.email ? `(to:${profile.email} OR label:"${profile.email}") newer_than:3d` : 'label:INBOX newer_than:3d',
       'label:INBOX newer_than:3d (entrevista OR interview OR meet OR calendly OR coordinar OR "proceso de selección" OR "prueba técnica" OR assessment)'
     ];
 
