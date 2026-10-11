@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
-import { getBrowserLaunchOptions, getPersistentLaunchOptions } from './browser_env.mjs';
+import { getBrowserLaunchOptions, getPersistentLaunchOptions, getDefaultUserAgent } from './browser_env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SESSION_DIR = path.join(ROOT, 'data', 'session');
@@ -58,7 +58,7 @@ async function checkSession() {
   }));
 
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    userAgent: getDefaultUserAgent(),
     viewport: { width: 1280, height: 800 },
     ignoreHTTPSErrors: true
   });
@@ -112,18 +112,31 @@ async function checkSession() {
   }
 }
 
-function importCookies(filePath) {
-  const resolved = path.resolve(filePath);
-  if (!fs.existsSync(resolved)) {
-    console.error(`❌ File not found: ${resolved}`);
+async function importCookies(input) {
+  let list = [];
+  try {
+    if (typeof input === 'string' && (input.trim().startsWith('[') || input.trim().startsWith('{'))) {
+      const raw = JSON.parse(input);
+      list = Array.isArray(raw) ? raw : (raw.cookies || []);
+    } else {
+      const resolved = path.resolve(input);
+      if (!fs.existsSync(resolved)) {
+        console.error(`❌ File not found: ${resolved}`);
+        process.exit(1);
+      }
+      const raw = JSON.parse(fs.readFileSync(resolved, 'utf8'));
+      list = Array.isArray(raw) ? raw : (raw.cookies || []);
+    }
+  } catch (err) {
+    console.error(`❌ Error parsing cookies: ${err.message}`);
     process.exit(1);
   }
 
-  const raw = JSON.parse(fs.readFileSync(resolved, 'utf8'));
-  const list = Array.isArray(raw) ? raw : (raw.cookies || []);
-
   const validCookies = list.map(c => {
     let domain = c.domain || '.linkedin.com';
+    if (domain.endsWith('linkedin.com')) {
+      domain = '.linkedin.com';
+    }
     const item = {
       name: c.name,
       value: c.value,
@@ -132,6 +145,16 @@ function importCookies(filePath) {
     };
     if (c.secure !== undefined) item.secure = Boolean(c.secure);
     if (c.httpOnly !== undefined) item.httpOnly = Boolean(c.httpOnly);
+
+    // Evitar que Playwright borre las cookies de sesión con expiración pasada o negativa
+    const exp = c.expires || c.expirationDate;
+    if (exp && Number(exp) > Date.now() / 1000) {
+      item.expires = Math.floor(Number(exp));
+    } else {
+      // 1 año de vigencia para evitar que Playwright las descarte en memoria
+      item.expires = Math.floor(Date.now() / 1000) + 365 * 24 * 3600;
+    }
+
     const ss = (c.sameSite || '').toLowerCase();
     if (ss === 'no_restriction' || ss === 'none') {
       item.sameSite = 'None';
@@ -146,13 +169,66 @@ function importCookies(filePath) {
   const state = { cookies: validCookies, origins: [] };
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
 
-  console.log(`✅ Imported ${validCookies.length} cookies into ${STATE_FILE}`);
+  console.log(`✅ Importadas ${validCookies.length} cookies exitosamente en ${STATE_FILE}`);
+  console.log('🔍 Verificando sesión de forma silenciosa...');
+  await checkSession();
+}
+
+async function setToken(token) {
+  if (!token) {
+    console.error('❌ Falta especificar el valor de la cookie li_at.');
+    console.error('Uso: node scripts/linkedin_session.mjs set-token <token_li_at>');
+    process.exit(1);
+  }
+
+  const cleanToken = token.trim().replace(/^["']|["']$/g, '');
+  const oneYearFromNow = Math.floor(Date.now() / 1000) + 365 * 24 * 3600;
+
+  let existingCookies = [];
+  if (fs.existsSync(STATE_FILE)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+      existingCookies = (prev.cookies || []).filter(c => c.name !== 'li_at');
+    } catch (_) {}
+  }
+
+  const newLiAt = {
+    name: 'li_at',
+    value: cleanToken,
+    domain: '.linkedin.com',
+    path: '/',
+    secure: true,
+    httpOnly: true,
+    sameSite: 'None',
+    expires: oneYearFromNow
+  };
+
+  const finalCookies = [newLiAt, ...existingCookies];
+  if (!finalCookies.some(c => c.name === 'JSESSIONID')) {
+    finalCookies.push({
+      name: 'JSESSIONID',
+      value: `ajax:${Math.floor(Date.now() / 1000)}`,
+      domain: '.linkedin.com',
+      path: '/',
+      secure: true,
+      httpOnly: false,
+      sameSite: 'None',
+      expires: oneYearFromNow
+    });
+  }
+
+  const state = { cookies: finalCookies, origins: [] };
+  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  console.log(`✅ Token li_at actualizado con éxito (${cleanToken.slice(0, 10)}...) en ${STATE_FILE}`);
+  console.log('🔍 Verificando sesión de forma 100% silenciosa (sin abrir ventanas)...');
+  await checkSession();
 }
 
 async function loginUi() {
   console.log('🖥️ Opening browser for manual LinkedIn login...');
   const userDir = path.resolve('data/session/persistent_chrome');
   const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    headless: false,
     viewport: { width: 1280, height: 900 }
   }));
   const page = context.pages()[0] || await context.newPage();
@@ -185,13 +261,14 @@ async function main() {
       console.error('Usage: node scripts/linkedin_session.mjs import <cookies.json>');
       process.exit(1);
     }
-    importCookies(args[1]);
-    await checkSession();
+    await importCookies(args[1]);
+  } else if (command === 'set-token') {
+    await setToken(args[1]);
   } else if (command === 'login-ui') {
     await loginUi();
   } else {
     console.log(`Unknown command: ${command}`);
-    console.log('Available commands: check | import <cookies.json> | login-ui');
+    console.log('Available commands: check | import <cookies.json> | set-token <token> | login-ui');
   }
 }
 

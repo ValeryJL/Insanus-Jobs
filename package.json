@@ -11,7 +11,8 @@
     "pdf": "node scripts/generate_pdf.mjs",
     "check:inbox": "node scripts/check_inbox.mjs",
     "check:responses": "node scripts/check_recruiter_responses.mjs",
-    "check:cv": "node scripts/check_cv_format.mjs"
+    "check:cv": "node scripts/check_cv_format.mjs",
+    "keepalive": "node scripts/linkedin_keepalive.mjs"
   },
   "keywords": [
     "ai-agent",
