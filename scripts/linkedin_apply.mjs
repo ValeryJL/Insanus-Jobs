@@ -187,6 +187,21 @@ async function run() {
     viewport: { width: 1280, height: 900 }
   }));
 
+  let targetUrl = jobUrl;
+  const matchId = jobUrl.match(/(\d{8,})/);
+  if (matchId) {
+    targetUrl = `https://www.linkedin.com/jobs/view/${matchId[1]}/`;
+  }
+
+  if (fs.existsSync(STATE_FILE)) {
+    try {
+      const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+      if (state.cookies && state.cookies.length > 0) {
+        await browser.addCookies(state.cookies);
+      }
+    } catch (_) {}
+  }
+
   const page = browser.pages()[0] || await browser.newPage();
 
   await page.addInitScript(`
@@ -195,7 +210,7 @@ async function run() {
   `);
 
   try {
-    await page.goto(jobUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
     await page.waitForTimeout(3000);
 
     if (page.url().includes('/login') || page.url().includes('/authwall') || page.url().includes('/checkpoint')) {

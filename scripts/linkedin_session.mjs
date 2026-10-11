@@ -231,8 +231,13 @@ async function loginUi() {
     headless: false,
     viewport: { width: 1280, height: 900 }
   }));
+
+  // Limpiar cookies viejas/caducadas para evitar el bucle de redirecciones (ERR_TOO_MANY_REDIRECTS)
+  await context.clearCookies();
+
   const page = context.pages()[0] || await context.newPage();
-  await page.goto('https://www.linkedin.com/login');
+  console.log('🌐 Navegando a la pantalla limpia de login...');
+  await page.goto('https://www.linkedin.com/login', { waitUntil: 'domcontentloaded', timeout: 35000 });
   console.log('👉 Iniciá sesión en LinkedIn en la ventana emergente (tildá "Recordarme" si aparece).');
   console.log('⏳ Esperando inicio de sesión exitoso (hasta 3 minutos)...');
 
