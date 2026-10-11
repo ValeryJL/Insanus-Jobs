@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
+import { getPersistentLaunchOptions } from './browser_env.mjs';
 
 function loadTargets() {
   const arg = process.argv[2];
@@ -115,13 +116,9 @@ async function sendConnect(target, context) {
 
 async function main() {
   const userDir = path.resolve('data/session/persistent_chrome');
-  const context = await chromium.launchPersistentContext(userDir, {
-    headless: false,
-    executablePath: '/usr/bin/google-chrome',
-    ignoreHTTPSErrors: true,
-    viewport: { width: 1280, height: 900 },
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-  });
+  const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    viewport: { width: 1280, height: 900 }
+  }));
 
   const targets = loadTargets();
   const results = [];

@@ -1,7 +1,7 @@
 import path from 'path';
 import { chromium } from 'playwright';
-
 import fs from 'fs';
+import { getPersistentLaunchOptions } from './browser_env.mjs';
 
 function loadUrls() {
   const arg = process.argv[2];
@@ -26,13 +26,9 @@ const URLS = loadUrls();
 
 async function inspectRecruiters() {
   const userDir = path.resolve('data/session/persistent_chrome');
-  const context = await chromium.launchPersistentContext(userDir, {
-    headless: false,
-    executablePath: '/usr/bin/google-chrome',
-    ignoreHTTPSErrors: true,
-    viewport: { width: 1280, height: 900 },
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-  });
+  const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    viewport: { width: 1280, height: 900 }
+  }));
 
   const page = context.pages()[0] || await context.newPage();
   const results = [];

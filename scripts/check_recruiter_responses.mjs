@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
 import { GmailMcpClient } from './check_gmail_mcp.mjs';
+import { getPersistentLaunchOptions } from './browser_env.mjs';
 
 import { loadProfile } from './profile_loader.mjs';
 
@@ -102,6 +103,9 @@ async function checkGmailResponses() {
     }
 
     return foundMessages;
+  } catch (err) {
+    console.warn(`⚠️ [WARN] No se pudo consultar Gmail MCP (${err.message}). Continuando sin Gmail.`);
+    return [];
   } finally {
     client.stop();
   }
@@ -113,13 +117,9 @@ async function checkGmailResponses() {
 async function checkLinkedInMessages() {
   console.log('⚡ Conectando a LinkedIn Messaging para chequear respuestas de recruiters...');
   const userDir = path.resolve('data/session/persistent_chrome');
-  const context = await chromium.launchPersistentContext(userDir, {
-    headless: false,
-    executablePath: '/usr/bin/google-chrome',
-    ignoreHTTPSErrors: true,
-    viewport: { width: 1280, height: 900 },
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-  });
+  const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    viewport: { width: 1280, height: 900 }
+  }));
 
   const page = context.pages()[0] || await context.newPage();
   const linkedInMessages = [];

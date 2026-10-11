@@ -15,6 +15,7 @@ import { resolve, dirname } from 'path';
 import { readFile } from 'fs/promises';
 import { mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
+import { getBrowserLaunchOptions } from './browser_env.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -133,22 +134,9 @@ async function generatePDF() {
     console.log(`🧹 ATS normalization: ${totalReplacements} replacements (${breakdown})`);
   }
 
-  const launchOptions = { headless: true };
-  if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
-    launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-  } else {
-    // Check for common system paths as fallback
-    const fs = await import('fs');
-    const fallbacks = ['/usr/bin/google-chrome', '/usr/bin/chromium-browser', '/usr/bin/chromium'];
-    for (const p of fallbacks) {
-      if (fs.existsSync(p)) {
-        launchOptions.executablePath = p;
-        break;
-      }
-    }
-  }
-
-  const browser = await chromium.launch(launchOptions);
+  const browser = await chromium.launch(getBrowserLaunchOptions({
+    headless: true
+  }));
   try {
     const page = await browser.newPage();
 

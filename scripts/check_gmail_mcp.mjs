@@ -1,4 +1,6 @@
+import fs from 'fs';
 import { spawn } from 'child_process';
+import path from 'path';
 
 /**
  * Cliente interactivo con el servidor MCP oficial de Google Workspace (mantiene el proceso vivo)
@@ -13,8 +15,14 @@ export class GmailMcpClient {
 
   async start() {
     if (this.cp) return;
+    const homeDir = process.env.HOME || process.env.USERPROFILE || '';
     const extensionPath = process.env.GOOGLE_WORKSPACE_MCP_PATH || 
-      path.join(process.env.HOME || '', '.gemini/extensions/google-workspace/dist/index.js');
+      path.join(homeDir, '.gemini/extensions/google-workspace/dist/index.js');
+
+    if (!fs.existsSync(extensionPath)) {
+      throw new Error(`Google Workspace MCP extension not found at: ${extensionPath}`);
+    }
+
     this.cp = spawn('node', [
       extensionPath,
       '--use-dot-names'

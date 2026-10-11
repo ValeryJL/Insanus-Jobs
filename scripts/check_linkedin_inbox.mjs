@@ -1,16 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
+import { getPersistentLaunchOptions } from './browser_env.mjs';
 
 async function checkLinkedInInbox() {
   const userDir = path.resolve('data/session/persistent_chrome');
-  const context = await chromium.launchPersistentContext(userDir, {
-    headless: false,
-    ignoreHTTPSErrors: true,
-    executablePath: '/usr/bin/google-chrome',
-    viewport: { width: 1400, height: 900 },
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--ignore-certificate-errors']
-  });
+  const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    viewport: { width: 1400, height: 900 }
+  }));
 
   try {
     const page = context.pages()[0] || await context.newPage();

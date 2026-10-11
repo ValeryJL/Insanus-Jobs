@@ -12,6 +12,7 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { getBrowserLaunchOptions } from './browser_env.mjs';
 
 const htmlPath = process.argv[2];
 if (!htmlPath) {
@@ -32,19 +33,9 @@ async function checkFormat() {
     process.exit(1);
   }
 
-  const launchOptions = { headless: true };
-  if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
-    launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-  } else {
-    const fallbacks = ['/usr/bin/google-chrome', '/usr/bin/chromium-browser', '/usr/bin/chromium'];
-    for (const p of fallbacks) {
-      if (fs.existsSync(p)) {
-        launchOptions.executablePath = p;
-        break;
-      }
-    }
-  }
-  const browser = await chromium.launch(launchOptions);
+  const browser = await chromium.launch(getBrowserLaunchOptions({
+    headless: true
+  }));
   const page = await browser.newPage();
 
   await page.goto(`file://${absolutePath}`, { waitUntil: 'networkidle' });

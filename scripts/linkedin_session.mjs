@@ -14,6 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import { getBrowserLaunchOptions, getPersistentLaunchOptions } from './browser_env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SESSION_DIR = path.join(ROOT, 'data', 'session');
@@ -52,11 +53,9 @@ async function checkSession() {
 
   console.log(`🍪 Loaded ${cookies.length} cookie(s) from state.json`);
 
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
-    args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
-  });
+  const browser = await chromium.launch(getBrowserLaunchOptions({
+    headless: true
+  }));
 
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -153,12 +152,9 @@ function importCookies(filePath) {
 async function loginUi() {
   console.log('🖥️ Opening browser for manual LinkedIn login...');
   const userDir = path.resolve('data/session/persistent_chrome');
-  const context = await chromium.launchPersistentContext(userDir, {
-    headless: false,
-    executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
-    viewport: { width: 1280, height: 900 },
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled']
-  });
+  const context = await chromium.launchPersistentContext(userDir, getPersistentLaunchOptions({
+    viewport: { width: 1280, height: 900 }
+  }));
   const page = context.pages()[0] || await context.newPage();
   await page.goto('https://www.linkedin.com/login');
   console.log('👉 Please log in to LinkedIn in the browser window.');

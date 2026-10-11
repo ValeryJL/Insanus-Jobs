@@ -10,6 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import { getBrowserLaunchOptions } from './browser_env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STATE_FILE = path.join(ROOT, 'data', 'session', 'state.json');
@@ -187,11 +188,9 @@ async function run() {
   const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
   const cookies = state.cookies || [];
 
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
-    args: ['--disable-blink-features=AutomationControlled', '--no-sandbox']
-  });
+  const browser = await chromium.launch(getBrowserLaunchOptions({
+    headless: true
+  }));
 
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
